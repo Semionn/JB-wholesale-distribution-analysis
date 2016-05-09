@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import data_preprocess
 import metadata
 import logging
-from reseller_model.clusterization_model import ClusterizationModel
+from clusterization_model import ClusterizationModel
 from sklearn import preprocessing as preproc
 
 np.set_printoptions(precision=5, suppress=True)  # suppress scientific float notation
