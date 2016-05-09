@@ -68,6 +68,7 @@ def clients_clusterization(X):
 
     clients_loyalty = clients_df.groupby('customer_id')[['customer_id']].mean()
     clients_loyalty['loyalty'] = 0
+    clients_loyalty['Renew loyalty'] = 0
     del clients_loyalty['customer_id']
     stock_quantity_columns = []
     for stock_id in metadata.stock_ids:
@@ -75,6 +76,8 @@ def clients_clusterization(X):
         if stock_name == "None":
             continue
         add_N = clients_df[clients_df['stock_id'] == stock_id].groupby('customer_id')['quantity'].sum()
+        add_Renew = clients_df[(clients_df['stock_id'] == stock_id) &
+                               (clients_df['license_type'] == 2)].groupby('customer_id')['quantity'].count()
         if len(add_N) == 0:
             continue
         col_name = stock_name + '_quantity'
@@ -85,12 +88,19 @@ def clients_clusterization(X):
 
         add_N2 = add_N * add_N
         add_N2_df = add_N2.to_frame('loyalty')
+        add_Renew2 = add_Renew * add_Renew
+        add_Renew2_df = add_Renew2.to_frame('Renew loyalty')
         clients_loyalty = pd.merge(clients_loyalty, add_N2_df, how='left', left_index=True, right_index=True)
         clients_loyalty['loyalty'] = clients_loyalty['loyalty_x'] + np.nan_to_num(clients_loyalty['loyalty_y'])
+        clients_loyalty = pd.merge(clients_loyalty, add_Renew2_df, how='left', left_index=True, right_index=True)
+        clients_loyalty['Renew loyalty'] = clients_loyalty['Renew loyalty_x'] + np.nan_to_num(clients_loyalty['Renew loyalty_y'])
         del clients_loyalty['loyalty_x']
         del clients_loyalty['loyalty_y']
+        del clients_loyalty['Renew loyalty_x']
+        del clients_loyalty['Renew loyalty_y']
 
     clients_loyalty['loyalty'] **= 0.5
+    clients_loyalty['Renew loyalty'] **= 0.5
 
     clients_df = pd.merge(clients_df, clients_loyalty, how='left', left_on='customer_id', right_index=True)
 
@@ -112,8 +122,8 @@ def clients_clusterization(X):
     clients_df['Sale part'] = clients_df['Dicsount_amount_USD'] / clients_df['USD_total']
 
     old_columns = ['GDP', 'HDI', 'population', 'urban', 'avg_income']
-    chosen_columns = ['customer_id', 'loyalty', 'Products number', 'USD_total',
-                      'Sale part'] + old_columns  # + stock_quantity_columns
+    chosen_columns = ['customer_id', 'loyalty', 'Products number', 'USD_total', 'Renew loyalty',
+                      'Sale part'] + old_columns # + stock_quantity_columns
     clients_df = clients_df[chosen_columns]
     print(clients_df.corr())
     # del clients_df['Products number']
@@ -136,7 +146,7 @@ def clients_clusterization(X):
     # clustering_model = ClusterizationModel(model="dbscan", eps=5e4, min_samples=1).fit(clients)
     # clustering_model.draw_clusters(method="", axis=ax2, show=False)
     clustering_model = ClusterizationModel(n_clusters=n_clusters, model="KMeans").fit(clients)
-    # clustering_model.draw_clusters(method="", show=True)
+    clustering_model.draw_clusters(method="", show=True)
     # clustering_model = ClusterizationModel(model="hierarchy").fit(clients)
     # clustering_model.draw_clusters(method="dendrogram", show=True)
 
