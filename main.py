@@ -1,3 +1,6 @@
+from sklearn.linear_model.base import LinearRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.preprocessing.data import StandardScaler, PolynomialFeatures
 from sklearn.svm import OneClassSVM
 from sklearn.cross_validation import cross_val_predict
 from sklearn import cross_validation
@@ -7,6 +10,8 @@ from sklearn import ensemble
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.svm.classes import SVR
+
 import data_preprocess
 import metadata
 import logging
@@ -93,7 +98,8 @@ def clients_clusterization(X):
         clients_loyalty = pd.merge(clients_loyalty, add_N2_df, how='left', left_index=True, right_index=True)
         clients_loyalty['loyalty'] = clients_loyalty['loyalty_x'] + np.nan_to_num(clients_loyalty['loyalty_y'])
         clients_loyalty = pd.merge(clients_loyalty, add_Renew2_df, how='left', left_index=True, right_index=True)
-        clients_loyalty['Renew loyalty'] = clients_loyalty['Renew loyalty_x'] + np.nan_to_num(clients_loyalty['Renew loyalty_y'])
+        clients_loyalty['Renew loyalty'] = clients_loyalty['Renew loyalty_x'] + np.nan_to_num(
+            clients_loyalty['Renew loyalty_y'])
         del clients_loyalty['loyalty_x']
         del clients_loyalty['loyalty_y']
         del clients_loyalty['Renew loyalty_x']
@@ -123,13 +129,13 @@ def clients_clusterization(X):
 
     old_columns = ['GDP', 'HDI', 'population', 'urban', 'avg_income']
     chosen_columns = ['customer_id', 'loyalty', 'Products number', 'USD_total', 'Renew loyalty',
-                      'Sale part'] + old_columns # + stock_quantity_columns
+                      'Sale part'] + old_columns  # + stock_quantity_columns
     clients_df = clients_df[chosen_columns]
     print(clients_df.corr())
-    # del clients_df['Products number']
 
     clients_df = clients_df.groupby('customer_id').mean().reset_index()
     print(clients_df)
+    # drop few outliers, which have been found by hierarchy clusterization
     drop_index = clients_df['customer_id'].apply(
         lambda x: x not in [10402, 10518, 3513, 3795, 5632, 6372, 8325, 1031, 3384,
                             5586, 6308, 8249, 10100, 2857, 5555, 6265, 8183, 10009, 2850, 907, 1006, 37, 904])
@@ -139,7 +145,7 @@ def clients_clusterization(X):
     columns_without_id.remove('customer_id')
     clients = clients_df[columns_without_id]
 
-    n_clusters = 5
+    n_clusters = 3
     # f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
     # clustering_model = ClusterizationModel(model="agglomerative").fit(clients)
     # clustering_model.draw_clusters(method="", axis=ax1, show=False)
@@ -182,11 +188,20 @@ n_clusters = 5
 # cluster_reseller_model = ClusterizationModel(model="dbscan", eps=5e4, min_samples=1).fit(resellers_grouped_clean_df)
 # cluster_reseller_model.draw_clusters(method="", axis=ax2, show=False)
 cluster_reseller_model = ClusterizationModel(n_clusters=n_clusters, model="KMeans").fit(resellers_grouped_clean_df)
-cluster_reseller_model.draw_clusters(method="", show=True)
+# cluster_reseller_model.draw_clusters(method="", show=True)
+# cluster_reseller_model = ClusterizationModel(model="hierarchy").fit(resellers_grouped_clean_df)
+# cluster_reseller_model.draw_clusters(method="dendrogram", show=True)
 print(cluster_reseller_model.get_mean_values())
 
 print(resellers_grouped_clean_df.corr())
-#
+
+# plot resellers volume, grouped by discount
+discount_groups = resellers_grouped_df[['reseller_volume', 'reseller_discount']].groupby('reseller_discount').agg(
+    ['mean', 'count'])
+discount_groups['reseller_volume'].plot(kind='bar')
+plt.ylabel('reseller_volume')
+plt.show()
+
 # x = resellers_grouped_df[['reseller_volume', 'amount_in_usd_x', 'amount_in_usd_y']]  # 'reseller_volume',
 # y = resellers_grouped_df['reseller_discount']
 #
@@ -220,79 +235,85 @@ stocks_mse = []
 stocks_accuracy = []
 stocks_acc_confidence_intervals = []
 
-for stock_id in stock_ids:
-    stock_rows = X[X["stock_id"] == stock_id].copy()
+stock_rows = X
 
-    print("stock_id: %s" % metadata.stock_ids[stock_id][0])
+techs = metadata.tech_ids.values()
 
-    idea_techs = []
-    for column in stock_rows.columns:
-        if column in metadata.tech_ids.values():
-            if stock_rows.iloc[1][column] == 1:
-                idea_techs.append(column)
+predictors = get_columns(X, ['discount_desc', 'customer_status', 'license_type', 'reseller_discount',
+                             'reseller_volume', 'urban', 'population', 'HDI', 'avg_income', 'GDP', 'client_label',
+                             'reseller_cluster'])
+# leave only derivative features: 'license_type_0', 'license_type_1' etc.
+predictors.remove('license_type')
+predictors.remove('reseller_cluster')
 
-    predictors = get_columns(X, ['stock_id', 'discount_desc', 'customer_status', 'license_type', 'reseller_discount',
-                                 'reseller_volume', 'urban', 'population', 'HDI', 'avg_income', 'GDP', 'client_label',
-                                 'reseller_cluster'])
-    predictors.remove('stock_id')
-    for tech in idea_techs:
-        if tech in data.trends_manager.techs:
-            tm = data.trends_manager.techs[tech]
-            for series in tm.series:
-                stock_rows = stock_rows.join(series, how='inner')
+# trends data is useless
 
-            predictors += list(series.name for series in tm.series if not pd.isnull(series)[0])
+# for tech in techs:
+#     if tech in data.trends_manager.techs:
+#         tm = data.trends_manager.techs[tech]
+#         for series in tm.series:
+#             stock_rows = stock_rows.join(series, how='inner')
+#
+#         predictors += list(series.name for series in tm.series if not pd.isnull(series)[0])
 
-    x = stock_rows[predictors]
+x = stock_rows[predictors]
+from math import ceil
 
-    from math import ceil
-
-    mean_quantity = ceil(stock_rows['quantity'].mean())
-    print("mean: %s" % mean_quantity)
-
-    def quantity_mapper(quantity):
-        if quantity <= 1.1:
-            return 0
-        if quantity <= 2 + 0.1:
-            return 1
-        return 2
+mean_quantity = ceil(stock_rows['quantity'].mean())
+print("mean: %s" % mean_quantity)
 
 
-    response = "QuantityClass"
-    stock_rows[response] = stock_rows['quantity'].apply(quantity_mapper)
+def quantity_mapper(quantity):
+    if quantity <= 1.1:
+        return 0
+    if quantity <= mean_quantity + 0.1:
+        return 1
+    return 2
 
-    y = stock_rows[response]
 
-    def remove_if_constant(df, column):
-        if df[column].isin(df[column].iloc[:1]).all():
-            del df[column]
+response = "QuantityClass"
+stock_rows[response] = stock_rows['quantity'].apply(quantity_mapper)
 
-    for column in x.columns:
-        remove_if_constant(x, column)
+y = stock_rows[response]
 
-    if len(x) < 1:
-        continue
 
-    y = preproc.LabelEncoder().fit_transform(y)
+def remove_if_constant(df, column):
+    if df[column].isin(df[column].iloc[:1]).all():
+        del df[column]
 
-    # idea_rows[predictors + [response]].to_csv("java_predict.csv")
 
-    folds_cnt = 10
-    if len(x) < 20:
-        folds_cnt = 2
-    model = ensemble.RandomForestClassifier(n_jobs=4, n_estimators=25, max_features=5, random_state=0, max_depth=3,
-                                           max_leaf_nodes=15)
-    predicted = cross_val_predict(model, x, y, cv=folds_cnt, n_jobs=4)
+for column in x.columns:
+    remove_if_constant(x, column)
 
-    scores = cross_validation.cross_val_score(model, x, y, cv=folds_cnt, n_jobs=4)
-    stocks_accuracy.append(scores.mean())
-    stocks_acc_confidence_intervals.append(scores.std() * 2)
+# x = StandardScaler().fit_transform(x)
+# x = PolynomialFeatures(degree=2).fit_transform(x)
 
-    mse = metrics.mean_squared_error(y, predicted)
-    stocks_mse.append(mse)
+folds_cnt = 10
+if len(x) < 20:
+    folds_cnt = 2
+model = ensemble.RandomForestRegressor(n_jobs=4, n_estimators=25, max_features=10, random_state=0, max_depth=3,
+                                       max_leaf_nodes=5)
+# model = ensemble.GradientBoostingRegressor()
+predicted = cross_val_predict(model, x, y, cv=folds_cnt, n_jobs=4)
 
-plot_statistic(stocks_mse, "MSE", stock_names)
-plot_statistic(stocks_accuracy, "Accuracy", stock_names, stocks_acc_confidence_intervals)
+predicted = predicted.round()
+
+scores = cross_validation.cross_val_score(model, x, y, cv=folds_cnt, n_jobs=4)
+model = model.fit(x, y)
+
+feature_importances = sorted(zip(model.feature_importances_, predictors), reverse=True)
+print("\n".join(map(lambda x: "%17s: %s" % (x[1], str(x[0])), (filter(lambda x: x[0] > 0, feature_importances)))))
+
+print("r2: %s" % scores.mean())
+
+mse = metrics.mean_squared_error(y, predicted)
+stocks_mse.append(mse)
+print("mse: %s " % mse)
+
+residuals_df = pd.DataFrame([])
+residuals_df["value"] = abs(y - predicted)
+residuals_df = residuals_df.sort_values(by='value')
+plot_statistic(residuals_df["value"], "Residuals")
 
 # pd.tools.plotting.scatter_matrix(clients, alpha=0.2,
 #                                  c='red', hist_kwds={'color': ['burlywood']})
