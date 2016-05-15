@@ -1,0 +1,20 @@
+digraph Tree {
+node [shape=box] ;
+0 [label="customer_status == new customer\nmse = 0.6545\nsamples = 19747\nvalue = 0.6652"] ;
+1 [label="license_type == New\nmse = 0.7126\nsamples = 9821\nvalue = 0.8519"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="False"] ;
+4 [label="mse = 0.6345\nsamples = 4270\nvalue = 0.7066"] ;
+1 -> 4 ;
+3 [label="mse = 0.744\nsamples = 5551\nvalue = 0.9638"] ;
+1 -> 3 ;
+2 [label="reseller_volume <= 2527.0\nmse = 0.5283\nsamples = 9926\nvalue = 0.4804"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="True"] ;
+6 [label="mse = 0.5642\nsamples = 2602\nvalue = 0.608"] ;
+2 -> 6 ;
+8 [label="mse = 0.3182\nsamples = 1337\nvalue = 0.2423"] ;
+5 -> 8 ;
+7 [label="mse = 0.5398\nsamples = 5987\nvalue = 0.478"] ;
+5 -> 7 ;
+5 [label="reseller_discount <= 17.5\nmse = 0.5077\nsamples = 7324\nvalue = 0.435"] ;
+2 -> 5 ;
+}

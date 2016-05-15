@@ -198,123 +198,38 @@ print(resellers_grouped_clean_df.corr())
 # plot resellers volume, grouped by discount
 discount_groups = resellers_grouped_df[['reseller_volume', 'reseller_discount']].groupby('reseller_discount').agg(
     ['mean', 'count'])
-discount_groups['reseller_volume'].plot(kind='bar')
+discount_groups['reseller_volume'].plot(kind='bar', subplots=True)
 plt.ylabel('reseller_volume')
 plt.show()
-
-# x = resellers_grouped_df[['reseller_volume', 'amount_in_usd_x', 'amount_in_usd_y']]  # 'reseller_volume',
-# y = resellers_grouped_df['reseller_discount']
-#
-# model = ensemble.RandomForestClassifier(n_jobs=4, n_estimators=25, random_state=0, max_depth=3,
-#                                         max_leaf_nodes=15)
-# predicted = cross_val_predict(model, x, y, cv=10, n_jobs=4)
-# scores = cross_validation.cross_val_score(model, x, y, cv=10, n_jobs=4)
-# mse = metrics.mean_squared_error(y, predicted)
-# print(scores)
-# print(mse)
-# print(list(zip(predicted, y)))
-# # plot_statistic(sorted(abs(predicted - y)), "residuals")
 
 resellers_grouped_df['reseller_cluster'] = pd.Series(cluster_reseller_model.get_labels())
 X = pd.merge(X, resellers_grouped_df[['reseller_id', 'reseller_cluster'] + clients_labels_full], how='left',
              on='reseller_id')
-X = data_preprocess.preprocess_categorical(X, ['reseller_cluster'])
 
-X = X.set_index(X['placed_date'])
-X = X.sort_index()
-
-# t = data_preprocess.normalize(X, metadata.normalize_columns)
-
-stock_ids = list(filter(lambda stock_id: metadata.stock_ids[stock_id][0] != 'None', X["stock_id"].unique()))
-stock_ids = list(filter(lambda stock_id: len(X[X["stock_id"] == stock_id]) >= 10, stock_ids))
-
-short_names = {v: k for k, v in metadata.stock_short_name_ids.items()}
-stock_names = list(map(lambda st_id: metadata.stock_ids[st_id][0], stock_ids))
-
-stocks_mse = []
-stocks_accuracy = []
-stocks_acc_confidence_intervals = []
-
-stock_rows = X
-
-techs = metadata.tech_ids.values()
-
-predictors = get_columns(X, ['discount_desc', 'customer_status', 'license_type', 'reseller_discount',
-                             'reseller_volume', 'urban', 'population', 'HDI', 'avg_income', 'GDP', 'client_label',
-                             'reseller_cluster'])
-# leave only derivative features: 'license_type_0', 'license_type_1' etc.
-predictors.remove('license_type')
-predictors.remove('reseller_cluster')
-
-# trends data is useless
-
-# for tech in techs:
-#     if tech in data.trends_manager.techs:
-#         tm = data.trends_manager.techs[tech]
-#         for series in tm.series:
-#             stock_rows = stock_rows.join(series, how='inner')
-#
-#         predictors += list(series.name for series in tm.series if not pd.isnull(series)[0])
-
-x = stock_rows[predictors]
-from math import ceil
-
-mean_quantity = ceil(stock_rows['quantity'].mean())
-print("mean: %s" % mean_quantity)
-
-
-def quantity_mapper(quantity):
-    if quantity <= 1.1:
-        return 0
-    if quantity <= mean_quantity + 0.1:
-        return 1
-    return 2
-
-
-response = "QuantityClass"
-stock_rows[response] = stock_rows['quantity'].apply(quantity_mapper)
-
-y = stock_rows[response]
-
-
-def remove_if_constant(df, column):
-    if df[column].isin(df[column].iloc[:1]).all():
-        del df[column]
-
-
-for column in x.columns:
-    remove_if_constant(x, column)
-
-# x = StandardScaler().fit_transform(x)
-# x = PolynomialFeatures(degree=2).fit_transform(x)
-
-folds_cnt = 10
-if len(x) < 20:
-    folds_cnt = 2
-model = ensemble.RandomForestRegressor(n_jobs=4, n_estimators=25, max_features=10, random_state=0, max_depth=3,
-                                       max_leaf_nodes=5)
-# model = ensemble.GradientBoostingRegressor()
-predicted = cross_val_predict(model, x, y, cv=folds_cnt, n_jobs=4)
-
-predicted = predicted.round()
-
-scores = cross_validation.cross_val_score(model, x, y, cv=folds_cnt, n_jobs=4)
-model = model.fit(x, y)
-
-feature_importances = sorted(zip(model.feature_importances_, predictors), reverse=True)
-print("\n".join(map(lambda x: "%17s: %s" % (x[1], str(x[0])), (filter(lambda x: x[0] > 0, feature_importances)))))
-
-print("r2: %s" % scores.mean())
-
-mse = metrics.mean_squared_error(y, predicted)
-stocks_mse.append(mse)
-print("mse: %s " % mse)
-
-residuals_df = pd.DataFrame([])
-residuals_df["value"] = abs(y - predicted)
-residuals_df = residuals_df.sort_values(by='value')
-plot_statistic(residuals_df["value"], "Residuals")
-
-# pd.tools.plotting.scatter_matrix(clients, alpha=0.2,
-#                                  c='red', hist_kwds={'color': ['burlywood']})
-# plt.show()
+import statsmodels.api as sm
+from scipy import stats
+reseller_clusters = list(X['reseller_cluster'].unique())
+for cluster in reseller_clusters:
+    resellers_df = X[['reseller_cluster', 'amount_in_usd', 'placed_date']][X['reseller_cluster'] == cluster]
+    resellers_df['placed_date'] = pd.to_datetime(resellers_df['placed_date'])
+    resellers_df = resellers_df[(resellers_df['placed_date'] >= '2012-01-01') & (resellers_df['placed_date'] < '2016-01-01')]
+    resellers_df = resellers_df.set_index(resellers_df['placed_date'])
+    resellers_df = resellers_df.sort_index()
+    resellers_df = resellers_df[['amount_in_usd']]
+    resellers_df = resellers_df.groupby(pd.TimeGrouper(freq='W')).sum()
+    resellers_df.loc[pd.to_datetime('2014-12-31')] = float(np.nan)
+    resellers_df.loc[pd.to_datetime('2015-12-31')] = float(np.nan)
+    resellers_df['amount_in_usd'].interpolate(method="values", inplace=True)
+    time_series_df = pd.DataFrame(resellers_df[['amount_in_usd']])
+    time_series_df.plot(figsize=(15,5))
+    plt.show()
+    # fig = plt.figure(figsize=(12, 8))
+    # ax1 = fig.add_subplot(211)
+    # fig = sm.graphics.tsa.plot_acf(resellers_df.values.squeeze(), lags=48, ax=ax1)
+    # ax2 = fig.add_subplot(212)
+    # fig = sm.graphics.tsa.plot_pacf(resellers_df, lags=48, ax=ax2)
+    # arma_mod30 = sm.tsa.ARMA(resellers_df, (12, 3)).fit()
+    # print(arma_mod30.params)
+    # fig, ax = plt.subplots(figsize=(12, 8))
+    # ax = resellers_df.ix['2012':].plot(ax=ax)
+    # fig = arma_mod30.plot_predict('2014', '2015', dynamic=True, ax=ax, plot_insample=False)
