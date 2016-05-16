@@ -1,20 +1,20 @@
 digraph Tree {
 node [shape=box] ;
-0 [label="customer_status == new customer\nmse = 0.6545\nsamples = 19747\nvalue = 0.6652"] ;
-1 [label="license_type == New\nmse = 0.7126\nsamples = 9821\nvalue = 0.8519"] ;
+0 [label="license_type == New\nmse = 0.5837\nsamples = 39263\nvalue = 0.6295"] ;
+1 [label="mse = 0.6937\nsamples = 10050\nvalue = 0.8813"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="False"] ;
-4 [label="mse = 0.6345\nsamples = 4270\nvalue = 0.7066"] ;
-1 -> 4 ;
-3 [label="mse = 0.744\nsamples = 5551\nvalue = 0.9638"] ;
-1 -> 3 ;
-2 [label="reseller_volume <= 2527.0\nmse = 0.5283\nsamples = 9926\nvalue = 0.4804"] ;
+2 [label="client_label == 3\nmse = 0.5165\nsamples = 29213\nvalue = 0.5429"] ;
 0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="True"] ;
-6 [label="mse = 0.5642\nsamples = 2602\nvalue = 0.608"] ;
-2 -> 6 ;
-8 [label="mse = 0.3182\nsamples = 1337\nvalue = 0.2423"] ;
+4 [label="customer_status == New to product\nmse = 0.4976\nsamples = 24564\nvalue = 0.5088"] ;
+2 -> 4 ;
+3 [label="mse = 0.5777\nsamples = 4649\nvalue = 0.7236"] ;
+2 -> 3 ;
+6 [label="mse = 0.5453\nsamples = 3374\nvalue = 0.6769"] ;
+4 -> 6 ;
+5 [label="reseller_discount <= 20.0\nmse = 0.4848\nsamples = 21190\nvalue = 0.482"] ;
+4 -> 5 ;
+8 [label="mse = 0.2037\nsamples = 1523\nvalue = 0.1674"] ;
 5 -> 8 ;
-7 [label="mse = 0.5398\nsamples = 5987\nvalue = 0.478"] ;
+7 [label="mse = 0.4983\nsamples = 19667\nvalue = 0.5063"] ;
 5 -> 7 ;
-5 [label="reseller_discount <= 17.5\nmse = 0.5077\nsamples = 7324\nvalue = 0.435"] ;
-2 -> 5 ;
 }
