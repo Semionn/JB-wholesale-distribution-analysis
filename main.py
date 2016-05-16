@@ -53,7 +53,7 @@ def plot_statistic(statistic, title, names=None, conf_interv=None):
     plt.show()
 
 
-data = data_preprocess.get_data()
+data = data_preprocess.get_data(calc=True)
 
 X = data.main_data_frame
 
