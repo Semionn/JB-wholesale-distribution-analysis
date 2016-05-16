@@ -4,8 +4,6 @@ from collections import defaultdict
 from sklearn.feature_extraction import DictVectorizer
 import pandas as pd
 import numpy as np
-import collections
-import matplotlib.pyplot as plt
 import gc
 import os.path
 import logging

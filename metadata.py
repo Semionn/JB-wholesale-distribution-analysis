@@ -1,3 +1,5 @@
+import pandas as pd
+
 stock_short_name_ids = {
     "AC": 0,
     "CL": 1,
@@ -309,33 +311,92 @@ normalize_columns = ["amount_in_usd",
 # avg_income - Average Monthly Disposable Salary (after tax) (2015)
 # GDP - Gross domestic product (2015)
 
-countries_data = [
-    {"iso": "AT", "urban": 0.66, "population": 5621,  "HDI": 0.885, "avg_income": 2002, "GDP": 374124},  # AUSTRIA
-    {"iso": "BE", "urban": 0.98, "population": 10190, "HDI": 0.881, "avg_income": 2060, "GDP": 454687},  # BELGIUM
-    {"iso": "BG", "urban": 0.74, "population": 5277,  "HDI": 0.704, "avg_income": 486,  "GDP": 48957},  # BULGARIA
-    {"iso": "IC", "urban": 0.6,  "population": 2118,  "HDI": 0.934, "avg_income": 1567, "GDP": 54737},  # CANARY ISLANDS
-    {"iso": "HR", "urban": 0.59, "population": 2506,  "HDI": 0.796, "avg_income": 757,  "GDP": 48850},  # CROATIA
-    {"iso": "CY", "urban": 0.67, "population": 565,   "HDI": 0.755, "avg_income": 1239, "GDP": 19330},  # CYPRUS
-    {"iso": "CZ", "urban": 0.73, "population": 5621,  "HDI": 0.870, "avg_income": 923,  "GDP": 181858},  # CZECH REPUBLIC
-    {"iso": "DK", "urban": 0.88, "population": 4935,  "HDI": 0.923, "avg_income": 2968, "GDP": 294951},  # DENMARK
-    {"iso": "EE", "urban": 0.68, "population": 868,   "HDI": 0.861, "avg_income": 899,  "GDP": 22704},  # ESTONIA
-    {"iso": "FI", "urban": 0.84, "population": 4577,  "HDI": 0.879, "avg_income": 2514, "GDP": 229671},  # FINLAND
-    {"iso": "FR", "urban": 0.76, "population": 51253, "HDI": 0.888, "avg_income": 2194, "GDP": 242156},  # FRANCE
-    {"iso": "DE", "urban": 0.75, "population": 62067, "HDI": 0.916, "avg_income": 2462, "GDP": 3357614},  # GERMANY
-    {"iso": "GR", "urban": 0.78, "population": 8644,  "HDI": 0.865, "avg_income": 890,  "GDP": 195320},  # GREECE
-    {"iso": "HU", "urban": 0.71, "population": 7030,  "HDI": 0.828, "avg_income": 551,  "GDP": 120636},  # HUNGARY
-    {"iso": "IE", "urban": 0.63, "population": 2944,  "HDI": 0.899, "avg_income": 2670, "GDP": 238031},  # IRELAND
-    {"iso": "IT", "urban": 0.69, "population": 42029, "HDI": 0.872, "avg_income": 1857, "GDP": 1815757},  # ITALY
-    {"iso": "LV", "urban": 0.67, "population": 1376,  "HDI": 0.810, "avg_income": 677,  "GDP": 27048},  # LATVIA
-    {"iso": "LT", "urban": 0.67, "population": 2001,  "HDI": 0.839, "avg_income": 663,  "GDP": 41267},  # LITHUANIA
-    {"iso": "LU", "urban": 0.90, "population": 482,   "HDI": 0.892, "avg_income": 3762, "GDP": 57423},  # LUXEMBOURG
-    {"iso": "MT", "urban": 0.95, "population": 410,   "HDI": 0.839, "avg_income": 1242, "GDP": 9801},  # MALTA
-    {"iso": "NL", "urban": 0.90, "population": 13088, "HDI": 0.915, "avg_income": 2527, "GDP": 738419},  # NETHERLANDS
-    {"iso": "PL", "urban": 0.61, "population": 23149, "HDI": 0.834, "avg_income": 803,  "GDP": 474893},  # POLAND
-    {"iso": "PT", "urban": 0.63, "population": 6675,  "HDI": 0.822, "avg_income": 896,  "GDP": 199077},  # PORTUGAL
-    {"iso": "RO", "urban": 0.52, "population": 11617, "HDI": 0.675, "avg_income": 515,  "GDP": 177315},  # ROMANIA
-    {"iso": "SK", "urban": 0.54, "population": 2932,  "HDI": 0.844, "avg_income": 825,  "GDP": 86629},  # SLOVAKIA
-    {"iso": "ES", "urban": 0.75, "population": 37349, "HDI": 0.869, "avg_income": 1429, "GDP": 1199715},  # SPAIN
-    {"iso": "SE", "urban": 0.86, "population": 8251,  "HDI": 0.907, "avg_income": 2435, "GDP": 492618},  # SWEDEN
-    {"iso": "GB", "urban": 0.86, "population": 54023, "HDI": 0.907, "avg_income": 2397, "GDP": 2849345},  # UNITED KINGDOM
-]
+countries_data = pd.read_csv("data/countries_stats.csv").T.to_dict().values()
+
+# countries_data = [
+#     {"iso": "AT", "urban": 0.66, "population": 5621,  "HDI": 0.885, "avg_income": 2002, "GDP": 374124,  "region": "Eastern Europe", "name": "AUSTRIA"},
+#     {"iso": "BE", "urban": 0.98, "population": 10190, "HDI": 0.881, "avg_income": 2060, "GDP": 454687,  "region": "Eastern Europe", "name": "BELGIUM"},
+#     {"iso": "BG", "urban": 0.74, "population": 5277,  "HDI": 0.704, "avg_income": 486,  "GDP": 48957,   "region": "Western Europe", "name":  "BULGARIA"},
+#     {"iso": "IC", "urban": 0.6,  "population": 2118,  "HDI": 0.934, "avg_income": 1567, "GDP": 54737,   "region": "Eastern Europe", "name":  "CANARY ISLANDS"},
+#     {"iso": "HR", "urban": 0.59, "population": 2506,  "HDI": 0.796, "avg_income": 757,  "GDP": 48850,   "region": "Western Europe", "name":  "CROATIA"},
+#     {"iso": "CY", "urban": 0.67, "population": 565,   "HDI": 0.755, "avg_income": 1239, "GDP": 19330,   "region": "Eastern Europe", "name":  "CYPRUS"},
+#     {"iso": "CZ", "urban": 0.73, "population": 5621,  "HDI": 0.870, "avg_income": 923,  "GDP": 181858,  "region": "Eastern Europe", "name": "CZECH REPUBLIC"},
+#     {"iso": "DK", "urban": 0.88, "population": 4935,  "HDI": 0.923, "avg_income": 2968, "GDP": 294951,  "region": "Eastern Europe", "name": "DENMARK"},
+#     {"iso": "EE", "urban": 0.68, "population": 868,   "HDI": 0.861, "avg_income": 899,  "GDP": 22704,   "region": "Western Europe", "name":  "ESTONIA"},
+#     {"iso": "FI", "urban": 0.84, "population": 4577,  "HDI": 0.879, "avg_income": 2514, "GDP": 229671,  "region": "Eastern Europe", "name": "FINLAND"},
+#     {"iso": "FR", "urban": 0.76, "population": 51253, "HDI": 0.888, "avg_income": 2194, "GDP": 242156,  "region": "Eastern Europe", "name": "FRANCE"},
+#     {"iso": "DE", "urban": 0.75, "population": 62067, "HDI": 0.916, "avg_income": 2462, "GDP": 3357614, "region": "Eastern Europe", "name":"GERMANY"},
+#     {"iso": "GR", "urban": 0.78, "population": 8644,  "HDI": 0.865, "avg_income": 890,  "GDP": 195320,  "region": "Eastern Europe", "name": "GREECE"},
+#     {"iso": "HU", "urban": 0.71, "population": 7030,  "HDI": 0.828, "avg_income": 551,  "GDP": 120636,  "region": "Western Europe", "name": "HUNGARY"},
+#     {"iso": "IE", "urban": 0.63, "population": 2944,  "HDI": 0.899, "avg_income": 2670, "GDP": 238031,  "region": "Eastern Europe", "name": "IRELAND"},
+#     {"iso": "IT", "urban": 0.69, "population": 42029, "HDI": 0.872, "avg_income": 1857, "GDP": 1815757, "region": "Eastern Europe", "name":"ITALY"},
+#     {"iso": "LV", "urban": 0.67, "population": 1376,  "HDI": 0.810, "avg_income": 677,  "GDP": 27048,   "region": "Western Europe", "name":  "LATVIA"},
+#     {"iso": "LT", "urban": 0.67, "population": 2001,  "HDI": 0.839, "avg_income": 663,  "GDP": 41267,   "region": "Western Europe", "name":  "LITHUANIA"},
+#     {"iso": "LU", "urban": 0.90, "population": 482,   "HDI": 0.892, "avg_income": 3762, "GDP": 57423,   "region": "Eastern Europe", "name":  "LUXEMBOURG"},
+#     {"iso": "MT", "urban": 0.95, "population": 410,   "HDI": 0.839, "avg_income": 1242, "GDP": 9801,    "region": "Eastern Europe", "name":   "MALTA"},
+#     {"iso": "NL", "urban": 0.90, "population": 13088, "HDI": 0.915, "avg_income": 2527, "GDP": 738419,  "region": "Eastern Europe", "name": "NETHERLANDS"},
+#     {"iso": "PL", "urban": 0.61, "population": 23149, "HDI": 0.834, "avg_income": 803,  "GDP": 474893,  "region": "Western Europe", "name": "POLAND"},
+#     {"iso": "PT", "urban": 0.63, "population": 6675,  "HDI": 0.822, "avg_income": 896,  "GDP": 199077,  "region": "Eastern Europe", "name": "PORTUGAL"},
+#     {"iso": "RO", "urban": 0.52, "population": 11617, "HDI": 0.675, "avg_income": 515,  "GDP": 177315,  "region": "Western Europe", "name": "ROMANIA"},
+#     {"iso": "SK", "urban": 0.54, "population": 2932,  "HDI": 0.844, "avg_income": 825,  "GDP": 86629,   "region": "Western Europe", "name":  "SLOVAKIA"},
+#     {"iso": "ES", "urban": 0.75, "population": 37349, "HDI": 0.869, "avg_income": 1429, "GDP": 1199715, "region": "Eastern Europe", "name":"SPAIN"},
+#     {"iso": "SE", "urban": 0.86, "population": 8251,  "HDI": 0.907, "avg_income": 2435, "GDP": 492618,  "region": "Eastern Europe", "name": "SWEDEN"},
+#     {"iso": "GB", "urban": 0.86, "population": 54023, "HDI": 0.907, "avg_income": 2397, "GDP": 2849345, "region": "Eastern Europe", "name":"UNITED KINGDOM"},
+#     {"iso": "IM", "urban": 0.52, "population": 84,    "HDI": 0.849, "avg_income": 607,  "GDP": 6298,    "region": "Eastern Europe", "name": "ISLE OF MAN"},
+#     {"iso": "NO", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Eastern Europe", "name": "NORWAY"},
+#     {"iso": "CH", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Eastern Europe", "name": "SWITZERLAND"},
+#     {"iso": "US", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Eastern Europe", "name": "UNITED STATES"},
+#     {"iso": "RU", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Russia", "name": "RUSSIAN FEDERATION"},
+#     {"iso": "JP", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "JAPAN"},
+#     {"iso": "HK", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "HONG KONG"},
+#     {"iso": "CN", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "CHINA"},
+#     {"iso": "AU", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Australia", "name": "AUSTRALIA"},
+#     {"iso": "IN", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "INDIA"},
+#     {"iso": "UA", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Western Europe", "name": "UKRAINE"},
+#     {"iso": "IL", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Near East", "name": "ISRAEL"},
+#     {"iso": "SG", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "SINGAPORE"},
+#     {"iso": "ZA", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "SOUTH AfricaRICA"},
+#     {"iso": "KR", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "KOREA, REPUBLIC OF"},
+#     {"iso": "CA", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "North America", "name": "CANADA"},
+#     {"iso": "TW", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "TAIWAN"},
+#     {"iso": "AE", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Near East", "name": "UNITED ARAB EMIRATES"},
+#     {"iso": "MY", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "MALAYSIA"},
+#     {"iso": "PH", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "PHILIPPINES"},
+#     {"iso": "NZ", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Australia", "name": "NEW ZEALAND"},
+#     {"iso": "BR", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "BRAZIL"},
+#     {"iso": "TR", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Near East", "name": "TURKEY"},
+#     {"iso": "MX", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "North America", "name": "MEXICO"},
+#     {"iso": "VN", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "VIET NAM"},
+#     {"iso": "ID", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "INDONESIA"},
+#     {"iso": "KZ", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "KAZAKHSTAN"},
+#     {"iso": "MA", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Africa", "name": "MOROCCO"},
+#     {"iso": "DO", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "DOMINICAN REPUBLIC"},
+#     {"iso": "GI", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Eastern Europe", "name": "GIBRALTAR"},
+#     {"iso": "GG", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "EEA", "name": "GUERNSEY"},
+#     {"iso": "XK", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Western Europe", "name": "KOSOVO, REPUBLIC OF"},
+#     {"iso": "EC", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Africa", "name": "ECUADOR"},
+#     {"iso": "BY", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Western Europe", "name": "BELARUS"},
+#     {"iso": "NP", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "NEPAL"},
+#     {"iso": "PE", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "PERU"},
+#     {"iso": "MD", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Western Europe", "name": "MOLDOVA, REPUBLIC OF"},
+#     {"iso": "PN", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "PITCAIRN"},
+#     {"iso": "BM", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "North America", "name": "BERMUDA"},
+#     {"iso": "TH", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "THAILAND"},
+#     {"iso": "KP", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF"},
+#     {"iso": "BA", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Western Europe", "name": "BOSNIA AND HERZEGOVINA"},
+#     {"iso": "AR", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "ARGENTINA"},
+#     {"iso": "RS", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Western Europe", "name": "SERBIA"},
+#     {"iso": "KW", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Near East", "name": "KUWAIT"},
+#     {"iso": "CR", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "COSTA RICA"},
+#     {"iso": "TZ", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Africa", "name": "TANZANIA, UNITED REPUBLIC OF"},
+#     {"iso": "CL", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "CHILE"},
+#     {"iso": "CO", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "COLOMBIA"},
+#     {"iso": "BO", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "BOLIVIA"},
+#     {"iso": "VG", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Western Europe", "name": "VIRGIN ISLANDS, BRITISH"},
+#     {"iso": "NC", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Australia", "name": "NEW CALEDONIA"},
+#     {"iso": "JM", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "South Africa", "name": "JAMAICA"},
+#     {"iso": "JE", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Eastern Europe", "name": "JERSEY"},
+#     {"iso": "SA", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Near East", "name": "SAUDI ARABIA"},
+#     {"iso": "LB", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Near East", "name": "LEBANON"},
+#     {"iso": "MO", "urban": 0,    "population": 0,     "HDI": 0,     "avg_income": 0,    "GDP": 0,       "region": "Asia", "name": "MACAO"}
+# ]

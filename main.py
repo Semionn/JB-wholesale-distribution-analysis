@@ -53,7 +53,7 @@ def plot_statistic(statistic, title, names=None, conf_interv=None):
     plt.show()
 
 
-data = data_preprocess.get_data(calc=True)
+data = data_preprocess.get_data()
 
 X = data.main_data_frame
 
@@ -145,7 +145,7 @@ def clients_clusterization(X):
     columns_without_id.remove('customer_id')
     clients = clients_df[columns_without_id]
 
-    n_clusters = 3
+    n_clusters = 4
     # f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
     # clustering_model = ClusterizationModel(model="agglomerative").fit(clients)
     # clustering_model.draw_clusters(method="", axis=ax1, show=False)
@@ -188,7 +188,7 @@ n_clusters = 5
 # cluster_reseller_model = ClusterizationModel(model="dbscan", eps=5e4, min_samples=1).fit(resellers_grouped_clean_df)
 # cluster_reseller_model.draw_clusters(method="", axis=ax2, show=False)
 cluster_reseller_model = ClusterizationModel(n_clusters=n_clusters, model="KMeans").fit(resellers_grouped_clean_df)
-# cluster_reseller_model.draw_clusters(method="", show=True)
+cluster_reseller_model.draw_clusters(method="", show=True)
 # cluster_reseller_model = ClusterizationModel(model="hierarchy").fit(resellers_grouped_clean_df)
 # cluster_reseller_model.draw_clusters(method="dendrogram", show=True)
 print(cluster_reseller_model.get_mean_values())
