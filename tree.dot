@@ -3,7 +3,7 @@ node [shape=box] ;
 0 [label="license_type == New\nmse = 0.5837\nsamples = 39263\nvalue = 0.6295"] ;
 1 [label="mse = 0.6937\nsamples = 10050\nvalue = 0.8813"] ;
 0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="False"] ;
-2 [label="client_label == 3\nmse = 0.5165\nsamples = 29213\nvalue = 0.5429"] ;
+2 [label="client_label_3 <= 503 \nmse = 0.5165\nsamples = 29213\nvalue = 0.5429"] ;
 0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="True"] ;
 4 [label="customer_status == New to product\nmse = 0.4976\nsamples = 24564\nvalue = 0.5088"] ;
 2 -> 4 ;
